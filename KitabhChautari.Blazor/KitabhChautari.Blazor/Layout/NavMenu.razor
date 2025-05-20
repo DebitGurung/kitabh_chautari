@@ -1,0 +1,269 @@
+﻿<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<!-- Removed FontAwesome script to avoid potential conflicts -->
+<!-- <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script> -->
+
+<div class="navbar-container">
+    <div class="navbar-content">
+        <div class="left-section">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <a class="navbar-brand" href="">Kitab Chautari</a>
+            </NavLink>
+            <div class="dropdown">
+                <button class="dropdown-toggle">
+                    Categories
+                </button>
+                <div class="dropdown-menu">
+                    <NavLink class="dropdown-item" href="browse">On Sale</NavLink>
+                    <NavLink class="dropdown-item" href="browse">New Arrival</NavLink>
+                    <NavLink class="dropdown-item" href="browse">Best Sellers</NavLink>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-links">
+            <div class="search-container">
+                @if (isSearchActive)
+                {
+                    <input type="text" class="search-input" @bind="searchQuery"
+                           placeholder="Search by title, ISBN, author..."
+                           @onkeyup="@(e => { if (e.Key == "Enter") PerformSearch(); })"
+                           @onblur="ToggleSearch" autofocus />
+                }
+                else
+                {
+                    <button class="search-button" @onclick="ToggleSearch" aria-label="Open search">
+                        <span class="bi bi-search iconbi"></span>
+                    </button>
+                }
+            </div>
+            <NavLink class="nav-link" href="wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="#334155" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.74 0 3.41 1.01 4.13 2.44h1.74C14.09 5.01 15.76 4 17.5 4 19.99 4 22 6.01 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+            </NavLink>
+            <NavLink class="nav-link" href="cart">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="#334155" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zM7.82 14.5l.94-2h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49a.996.996 0 0 0-.86-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44c-.2.36-.25.77-.14 1.16.18.62.75 1.06 1.4 1.06H19v-2H7.82z" />
+                </svg>
+            </NavLink>
+            <NavLink class="nav-link" href="profile">
+                <span class="bi bi-person-fill logicon"></span>
+            </NavLink>
+        </nav>
+    </div>
+</div>
+
+<!-- Debugging output -->
+<div style="position: fixed; bottom: 10px; right: 10px; background: #fff; padding: 10px; border: 1px solid #ccc;">
+    Debug: isSearchActive = @isSearchActive
+</div>
+
+<style>
+    .navbar-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: #fbf9f9;
+        color: #334155;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        height: 60px;
+    }
+
+    .navbar-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+        height: 100%;
+    }
+
+    .left-section {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        height: 100%;
+    }
+
+    .navbar-brand {
+        font-size: 1.25rem;
+        font-weight: bold;
+        text-decoration: none;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 0.5rem;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        height: 100%;
+    }
+
+    .nav-link {
+        color: #334155;
+        text-decoration: none;
+        padding: 0 0.75rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #485972;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+    .dropdown {
+        position: relative;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .dropdown-toggle {
+        background: none;
+        border: none;
+        color: #334155;
+        text-decoration: none;
+        padding: 0 1rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        font-size: 0.95rem;
+    }
+
+        .dropdown-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: #fbf9f9;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+        min-width: 180px;
+        z-index: 1000;
+        padding: 0.5rem 0;
+    }
+
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: block;
+        padding: 0.5rem 1.5rem;
+        color: #334155;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+            color: #334155;
+        }
+
+    .search-container {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        position: relative;
+    }
+
+    .search-button {
+        background: none;
+        border: none;
+        padding: 0 0.75rem;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+        .search-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .search-button .bi {
+            font-size: 1rem;
+        }
+
+    .search-input {
+        padding interoperability between Blazor and JavaScript: 0.5rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: #334155;
+        background-color: #fff;
+        outline: none;
+        width: 200px;
+        transition: all 0.3s ease;
+        z-index: 1001;
+    }
+
+        .search-input:focus {
+            border-color: #485972;
+            box-shadow: 0 0 0 2px rgba(72, 89, 114, 0.2);
+        }
+
+    .iconbi {
+        font-size: 1rem;
+    }
+
+    .logicon {
+        font-size: 1.4rem;
+    }
+
+    .nav-link svg {
+        width: 24px;
+        height: 24px;
+    }
+</style>
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    private string searchQuery;
+    private bool isSearchActive;
+
+    private void ToggleSearch()
+    {
+        isSearchActive = !isSearchActive;
+        if (!isSearchActive)
+        {
+            searchQuery = string.Empty;
+        }
+        Console.WriteLine($"ToggleSearch called. isSearchActive: {isSearchActive}");
+        StateHasChanged();
+    }
+
+    private void PerformSearch()
+    {
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            NavigationManager.NavigateTo($"/browse?search={Uri.EscapeDataString(searchQuery)}");
+            ToggleSearch();
+        }
+        Console.WriteLine($"PerformSearch called. Query: {searchQuery}");
+    }
+}

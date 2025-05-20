@@ -1,6 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar navbar-dark bg-primary">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">kitabh_chautari</a>
+        <a class="navbar-brand" href="/">Kitabh Chautari</a>
     </div>
 </div>
 
@@ -8,19 +8,45 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
+        <!-- Home Link -->
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door" aria-hidden="true"></span> Home
             </NavLink>
         </div>
+
+        <!-- Browse Books -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="browse">
+                <span class="bi bi-book" aria-hidden="true"></span> Browse Books
             </NavLink>
         </div>
+
+        <!-- Categories -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="categories">
+                <span class="bi bi-tags" aria-hidden="true"></span> Categories
+            </NavLink>
+        </div>
+
+        <!-- In-Store Page -->
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="in-store">
+                <span class="bi bi-shop" aria-hidden="true"></span> In-Store
+            </NavLink>
+        </div>
+
+        <!-- About Us -->
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="about">
+                <span class="bi bi-info-circle" aria-hidden="true"></span> About Us
+            </NavLink>
+        </div>
+
+        <!-- Contact -->
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="contact">
+                <span class="bi bi-telephone" aria-hidden="true"></span> Contact
             </NavLink>
         </div>
     </nav>

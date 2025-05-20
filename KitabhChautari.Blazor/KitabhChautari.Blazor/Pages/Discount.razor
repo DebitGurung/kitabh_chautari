@@ -1,0 +1,162 @@
+﻿@page "/adddiscount"
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<div class="discount-container">
+    <h1>Add Discount to Book</h1>
+    <div class="form-group">
+        <label>Book Title: @selectedBook?.Title</label>
+    </div>
+    <div class="form-group">
+        <label>Discount Percentage (%):</label>
+        <input type="number" @bind="discountPercentage" min="0" max="100" />
+    </div>
+    <div class="form-group">
+        <label>End Date:</label>
+        <input type="date" @bind="endDate" />
+    </div>
+    <div class="discount-summary">
+        <h2>Discount Summary</h2>
+        <p>Original Price: Rs. @(selectedBook?.Price.ToString("N0") ?? "0")</p>
+        <p>Discounted Amount: Rs. @CalculateDiscountedAmount().ToString("N0")</p>
+        <p>Final Price After Discount: Rs. @CalculateFinalPrice().ToString("N0")</p>
+    </div>
+    <button class="save-btn" @onclick="SaveDiscount">Save Discount</button>
+    <button class="cancel-btn" @onclick="Cancel">Cancel</button>
+</div>
+
+<style>
+    .discount-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 60px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+    .discount-summary {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+    }
+
+        .discount-summary h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .discount-summary p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+    .save-btn, .cancel-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .save-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+        .save-btn:hover {
+            background-color: #45a049;
+        }
+
+    .cancel-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+        .cancel-btn:hover {
+            background-color: #da190b;
+        }
+</style>
+
+@code {
+    [Parameter]
+    public int BookId { get; set; }
+
+    private Book selectedBook;
+    private int discountPercentage;
+    private DateTime endDate;
+
+    private List<Book> books = new List<Book>
+    {
+        new Book { Id = 1, Title = "The Picture of Dorian Gray", Author = "Oscar Wilde", Price = 750, Stock = 100, Discount = 0 },
+        new Book { Id = 2, Title = "Emma", Author = "Jane Austen", Price = 620, Stock = 100, Discount = 10 },
+        new Book { Id = 3, Title = "Ivanhoe", Author = "Walter Scott", Price = 680, Stock = 100, Discount = 0 },
+        new Book { Id = 4, Title = "Death of a Salesman", Author = "Arthur Miller", Price = 700, Stock = 100, Discount = 5 }
+    };
+
+    protected override void OnInitialized()
+    {
+        selectedBook = books.FirstOrDefault(b => b.Id == BookId);
+        if (selectedBook != null)
+        {
+            discountPercentage = selectedBook.Discount;
+            endDate = DateTime.Now.AddDays(7); // Default to 7 days from now
+        }
+    }
+
+    private decimal CalculateDiscountedAmount()
+    {
+        if (selectedBook == null || discountPercentage <= 0 || discountPercentage > 100)
+            return 0;
+        return selectedBook.Price * (discountPercentage / 100m);
+    }
+
+    private decimal CalculateFinalPrice()
+    {
+        if (selectedBook == null)
+            return 0;
+        return selectedBook.Price - CalculateDiscountedAmount();
+    }
+
+    private void SaveDiscount()
+    {
+        if (selectedBook != null && discountPercentage >= 0 && discountPercentage <= 100 && endDate > DateTime.Now)
+        {
+            selectedBook.Discount = discountPercentage;
+            NavigationManager.NavigateTo("/books");
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/books");
+    }
+
+    private class Book
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public decimal Price { get; set; }
+        public int Stock { get; set; }
+        public int Discount { get; set; }
+    }
+}

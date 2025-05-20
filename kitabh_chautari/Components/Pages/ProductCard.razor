@@ -1,0 +1,86 @@
+﻿@page "/book/{BookId}"
+@inject NavigationManager NavigationManager
+<h3>BookCard</h3>
+
+<div class="book-container row">
+    <!-- Book Cover -->
+    <div class="col-md-4">
+        <img src="Images/Novel/ClockWork.jpg"
+             alt="Book cover"
+             class="img-fluid mb-3"
+             style="max-height: 400px;">
+    </div>
+
+    <!-- Book Details -->
+    <div class="col-md-8">
+        <h2>Sample Book Title</h2>
+        <h4 class="text-muted">by Anthony Bergess</h4>
+
+        <div class="genre-badge mb-3">
+            <span class="badge bg-primary">Fiction</span>
+        </div>
+
+        <div class="price-section mb-3">
+            <h3 class="text-danger">Rs 1500</h3>
+            <p class="text-success">In Stock (5 available)</p>
+        </div>
+
+        <div class="synopsis mb-4">
+            <h5>Synopsis</h5>
+            <p class="text-muted">This is a sample synopsis for the book. It provides a brief overview of the story, characters, and main themes. Replace this with the actual book description.</p>
+        </div>
+
+        <div class="details-list mb-4">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <strong>Published:</strong> January 1, 2023
+                </li>
+                <li class="list-group-item">
+                    <strong>ISBN:</strong> 978-3-16-148410-0
+                </li>
+                <li class="list-group-item">
+                    <strong>Pages:</strong> 350
+                </li>
+            </ul>
+        </div>
+
+        <button class="btn btn-primary btn-lg">
+            Add to Cart
+        </button>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int BookId { get; set; }
+
+    private Book? book;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            book = await ApiHandlerService.GetBook(BookId);
+            if (book == null)
+            {
+                errorMessage = "Book not found";
+                NavigationManager.NavigateTo("/not-found");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading book: {ex.Message}";
+        }
+    }
+
+    private async Task AddToCart()
+    {
+        if (book != null)
+        {
+            // Implement your cart logic here
+            // You might want to call another service for cart operations
+        }
+    }
+}

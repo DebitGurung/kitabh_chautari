@@ -1,0 +1,217 @@
+﻿@page "/ordercomplete"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<!-- Main Content -->
+<div class="mainContainer">
+    <!-- Order Complete Message -->
+    <div class="order-complete-message">
+        <h2>Your order is on the way</h2>
+    </div>
+
+    <!-- Order Details Section -->
+    <div class="order-details-container">
+        @foreach (var order in completedOrders)
+        {
+            <div class="order-item">
+                <div class="order-image">
+                    <img src="@order.ImageUrl" alt="@order.Title" />
+                </div>
+                <div class="order-info">
+                    <h3 class="book-title">@order.Title</h3>
+                    <span class="book-price">Rs. @order.Price.ToString("N0")</span>
+                    <span class="order-quantity">Qty: @order.Quantity</span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Back to Home Button -->
+    <div class="back-button-container">
+        <button class="btn-back" @onclick="GoToHome">Back to Home Page</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-grid">
+        <div class="footerCard">
+            <h3 class="footer-title">About Us</h3>
+            <p class="infoName">Debit Gurung</p>
+            <p class="infoName">Tuphan Gurung</p>
+            <p class="infoName">Sangam Thapa</p>
+            <p class="infoName">Sujal Gurung</p>
+        </div>
+        <div class="footerCard">
+            <h3 class="footer-title">Contact Us</h3>
+            <p class="contact-title">kitab@gmail.com</p>
+        </div>
+        <div class="footerCard">
+            <h3 class="footer-title">Join Us On</h3>
+            <span class="bi bi-facebook"></span>
+            <span class="bi bi-instagram"></span>
+            <span class="bi bi-tiktok"></span>
+            <span class="bi bi-twitter-x"></span>
+        </div>
+    </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification" style="display: none;"></div>
+
+<style>
+    .mainContainer {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 200px; /* Match the gap from the homepage */
+    }
+
+    .order-complete-message {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+        .order-complete-message h2 {
+            font-size: 1.8rem;
+            color: #333;
+        }
+
+    .order-details-container {
+        margin-bottom: 40px;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .order-image img {
+        width: 100px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .order-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .book-title {
+        font-size: 1.1rem;
+        margin: 0;
+        color: #333;
+    }
+
+    .book-price {
+        font-weight: bold;
+        color: #333;
+        font-size: 1rem;
+    }
+
+    .order-quantity {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .back-button-container {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .btn-back {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+        .btn-back:hover {
+            background-color: #45a049;
+        }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 50px;
+        padding: 30px 0;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .footer-title {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .infoName, .contact-title {
+        margin: 5px 0;
+        color: #666;
+    }
+
+    .bi {
+        font-size: 1.5rem;
+        margin-right: 15px;
+        color: #555;
+        cursor: pointer;
+    }
+
+        .bi:hover {
+            color: #0066cc;
+        }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px;
+        border-radius: 4px;
+        z-index: 1000;
+        display: none;
+    }
+</style>
+
+<script>
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
+@code {
+    private List<Order> completedOrders = new List<Order>
+    {
+        new Order { Title = "The Picture of Dorian Gray", Price = 750, Quantity = 1, ImageUrl = "images/book1.jpg" }
+        // Add more orders as needed; this is a sample
+    };
+
+    private void GoToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private class Order
+    {
+        public string Title { get; set; }
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
+        public string ImageUrl { get; set; }
+    }
+}

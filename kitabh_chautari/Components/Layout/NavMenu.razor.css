@@ -85,7 +85,21 @@
 .navbar-toggler:checked ~ .nav-scrollable {
     display: block;
 }
+.category-icon {
+    width: 32px; /* Adjust based on your icon size */
+    height: 32px;
+    object-fit: contain;
+    transition: transform 0.2s;
+}
 
+.nav-link:hover .category-icon {
+    transform: translateY(-2px);
+}
+
+/* Active state styling */
+.nav-link.active .category-icon {
+    filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(2000%) hue-rotate(200deg);
+}
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
@@ -99,3 +113,5 @@
         overflow-y: auto;
     }
 }
+
+change the nav bar position to top

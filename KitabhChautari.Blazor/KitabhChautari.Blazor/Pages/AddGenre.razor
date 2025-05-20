@@ -1,0 +1,193 @@
+﻿@page "/admin/addgenre"
+@using System.ComponentModel.DataAnnotations
+@using Kitabh_Chautari.Components.Layout
+@layout AdminLayout
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<div class="mainContainer">
+    <h1>Add New Genre</h1>
+    <div class="add-genre-container">
+        <EditForm Model="@genre" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="name">Genre Name:</label>
+                <InputText id="name" @bind-Value="genre.Name" class="form-input" />
+                <ValidationMessage For="@(() => genre.Name)" />
+            </div>
+
+            <div class="action-buttons">
+                <button type="submit" class="submit-btn">Add Genre</button>
+                <button type="button" class="cancel-btn" @onclick="Cancel">Cancel</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification" style="display: none;"></div>
+
+<style>
+    .mainContainer {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 20px; /* Adjusted to avoid overlapping with navbar */
+    }
+
+    h1 {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 30px;
+    }
+
+    .add-genre-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fff;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+        .form-group label {
+            display: block;
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+    .form-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .submit-btn, .cancel-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 1rem;
+        color: white;
+    }
+
+    .submit-btn {
+        background-color: #4CAF50;
+    }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+
+    .cancel-btn {
+        background-color: #666;
+    }
+
+        .cancel-btn:hover {
+            background-color: #555;
+        }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px;
+        border-radius: 4px;
+        z-index: 1000;
+        display: none;
+    }
+</style>
+
+<script>
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
+@code {
+    private Genre genre = new Genre { BookGenres = new List<BookGenre>() };
+
+    private async Task HandleValidSubmit()
+    {
+        // Generate a new ID (simple increment for demo purposes)
+        genre.GenreId = SharedGenreData.Genres.Any() ? SharedGenreData.Genres.Max(g => g.GenreId) + 1 : 1;
+
+        // Add the new genre to the shared list
+        SharedGenreData.Genres.Add(genre);
+
+        await JSRuntime.InvokeVoidAsync("showNotification", $"{genre.Name} added successfully!");
+
+        // Reset the form
+        genre = new Genre { BookGenres = new List<BookGenre>() };
+
+        // Navigate back to the genres list
+        NavigationManager.NavigateTo("/admin/genres");
+    }
+
+    private void Cancel()
+    {
+        // Reset the form and navigate back
+        genre = new Genre { BookGenres = new List<BookGenre>() };
+        NavigationManager.NavigateTo("/admin/genres");
+    }
+
+    public class Genre
+    {
+        public int GenreId { get; set; }
+
+        [Required(ErrorMessage = "Genre name is required")]
+        [StringLength(50, ErrorMessage = "Genre name cannot exceed 50 characters")]
+        public string Name { get; set; } = string.Empty;
+
+        public ICollection<BookGenre> BookGenres { get; set; }
+    }
+
+    // Placeholder for BookGenre class
+    public class BookGenre
+    {
+        public int BookId { get; set; }
+        public int GenreId { get; set; }
+    }
+
+    // Static class to share genre data (for demo purposes)
+    public static class SharedGenreData
+    {
+        public static List<Genre> Genres { get; set; } = new List<Genre>
+        {
+            new Genre { GenreId = 1, Name = "Fantasy", BookGenres = new List<BookGenre>() },
+            new Genre { GenreId = 2, Name = "Sci-Fi", BookGenres = new List<BookGenre>() },
+            new Genre { GenreId = 3, Name = "Romance", BookGenres = new List<BookGenre>() },
+            new Genre { GenreId = 4, Name = "Drama", BookGenres = new List<BookGenre>() }
+        };
+    }
+}

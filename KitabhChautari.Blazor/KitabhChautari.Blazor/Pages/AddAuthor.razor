@@ -1,0 +1,100 @@
+﻿@page "/admin/addauthor"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using KitabhChautari.Blazor.Models
+@using KitabhChautari.Blazor.Services
+
+@layout AdminLayout
+
+@inject NavigationManager NavigationManager
+@inject Microsoft.AspNetCore.Components.IJSRuntime JSRuntime
+@inject ApiHandlerService ApiHandlerService
+
+<h1>Add New Author</h1>
+<EditForm Model="@newAuthor" OnValidSubmit="HandleSubmit" FormName="addAuthorForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Author Name:</label>
+        <InputText @bind="newAuthor.Author_name" @oninput="ValidateInput" class="form-input" />
+        <ValidationMessage For="@(() => newAuthor.Author_name)" />
+    </div>
+    <button type="submit" class="add-btn">Add Author</button>
+    <button type="button" class="cancel-btn" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+<style>
+    .form-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .add-btn {
+        padding: 8px 15px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+
+    .cancel-btn {
+        padding: 8px 15px;
+        background-color: #666;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+</style>
+
+@code {
+    private AuthorDto newAuthor = new AuthorDto();
+
+    protected override void OnInitialized()
+    {
+        newAuthor.Author_name = string.Empty;
+    }
+
+    private void ValidateInput(ChangeEventArgs args)
+    {
+        newAuthor.Author_name = args.Value?.ToString() ?? string.Empty;
+        Console.WriteLine($"Input changed: {newAuthor.Author_name}");
+        StateHasChanged();
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            Console.WriteLine($"Submitting Author: {newAuthor.Author_name}");
+            if (string.IsNullOrWhiteSpace(newAuthor.Author_name))
+            {
+                await JSRuntime.InvokeVoidAsync("showNotification", "Author name cannot be empty.", true);
+                return;
+            }
+            var createdAuthor = await ApiHandlerService.AddAuthorAsync(newAuthor);
+            if (createdAuthor != null)
+            {
+                await JSRuntime.InvokeVoidAsync("showNotification", $"{createdAuthor.Author_name} added successfully!");
+                newAuthor = new AuthorDto();
+                newAuthor.Author_name = string.Empty;
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("showNotification", "Failed to add author.", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("showNotification", $"Error: {ex.Message}", true);
+            Console.WriteLine($"Exception: {ex}");
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/admin/authors");
+    }
+}

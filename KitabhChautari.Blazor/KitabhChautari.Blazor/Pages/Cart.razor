@@ -1,0 +1,480 @@
+﻿@page "/cart"
+@inject NavigationManager NavigationManager
+
+<!-- Main Content -->
+<div class="mainContainer">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Cart</h1>
+        <a href="/" class="continue-shopping">Continue Shopping</a>
+    </div>
+
+    <!-- Cart Items -->
+    <div class="cart-items-container">
+        @if (cartItems.Count == 0)
+        {
+            <div class="empty-cart">
+                <img src="images/empty-cart.png" alt="Empty Cart" />
+                <h3>Your cart is empty</h3>
+                <p>Looks like you haven't added any items to your cart yet.</p>
+                <button class="btn-primary" @onclick="NavigateToHome">Browse Books</button>
+            </div>
+        }
+        else
+        {
+            <div class="cart-content">
+                <div class="cart-items">
+                    <div class="cart-items-header">
+                        <div class="header-product">Product</div>
+                        <div class="header-price">Price</div>
+                        <div class="header-quantity">Quantity</div>
+                        <div class="header-total">Total</div>
+                        <div class="header-actions">Actions</div>
+                    </div>
+
+                    @foreach (var item in cartItems)
+                    {
+                        <div class="cart-item">
+                            <div class="item-product">
+                                <img src="@item.ImageUrl" alt="@item.Title" />
+                                <div class="product-details">
+                                    <h4>@item.Title</h4>
+                                    <p>by @item.Author</p>
+                                </div>
+                            </div>
+                            <div class="item-price">NRP @item.Price.ToString("N0")</div>
+                            <div class="item-quantity">
+                                <button class="quantity-btn" @onclick="() => DecreaseQuantity(item)">-</button>
+                                <span>@item.Quantity</span>
+                                <button class="quantity-btn" @onclick="() => IncreaseQuantity(item)">+</button>
+                            </div>
+                            <div class="item-total">NRP @((item.Price * item.Quantity).ToString("N0"))</div>
+                            <div class="item-actions">
+                                <button class="remove-btn" @onclick="() => RemoveItem(item)">Remove</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="cart-summary">
+                    <div class="summary-details">
+                        <h3>Order Summary</h3>
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>NRP @cartItems.Sum(i => i.Price * i.Quantity).ToString("N0")</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span>NRP 100</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span>NRP @((cartItems.Sum(i => i.Price * i.Quantity) + 100).ToString("N0"))</span>
+                        </div>
+                        <button class="btn-checkout" @onclick="ProceedToCheckout">Proceed to Checkout</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Recently Viewed (optional) -->
+    @if (cartItems.Count > 0)
+    {
+        <div class="secContainer">
+            <div class="section-header">
+                <h2>You Might Also Like</h2>
+            </div>
+
+            <div class="products-grid">
+                <div class="productCard">
+                    <img src="images/book1.jpg" alt="Book 1" />
+                    <h3 class="book-title">The Picture of Dorian Gray</h3>
+                    <p class="book-author">Oscar Wilde</p>
+                    <span class="book-price">NRP 750</span>
+                    <button class="add-to-cart">Add To Cart</button>
+                </div>
+
+                <div class="productCard">
+                    <img src="images/emma.jpg" alt="Emma" />
+                    <h3 class="book-title">Emma</h3>
+                    <p class="book-author">Jane Austen</p>
+                    <span class="book-price">NRP 620</span>
+                    <button class="add-to-cart">Add To Cart</button>
+                </div>
+
+                <div class="productCard">
+                    <img src="images/scott.jpg" alt="Ivanhoe" />
+                    <h3 class="book-title">Ivanhoe</h3>
+                    <p class="book-author">Walter Scott</p>
+                    <span class="book-price">NRP 680</span>
+                    <button class="add-to-cart">Add To Cart</button>
+                </div>
+
+                <div class="productCard">
+                    <img src="images/deathofsales.jpg" alt="Death of a Salesman" />
+                    <h3 class="book-title">Death of a Salesman</h3>
+                    <p class="book-author">Arthur Miller</p>
+                    <span class="book-price">NRP 700</span>
+                    <button class="add-to-cart">Add To Cart</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    /* Reuse existing styles from main page */
+    .mainContainer {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 50px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            color: #333;
+        }
+
+    .continue-shopping {
+        color: #0066cc;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .continue-shopping:hover {
+            text-decoration: underline;
+        }
+
+    /* Empty Cart Styles */
+    .empty-cart {
+        text-align: center;
+        padding: 50px 0;
+    }
+
+        .empty-cart img {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .empty-cart p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+    .btn-primary {
+        padding: 10px 20px;
+        background-color: #808080;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+        .btn-primary:hover {
+            background-color: #666666;
+        }
+
+    /* Cart Items Styles */
+    .cart-items-container {
+        margin-bottom: 30px;
+    }
+
+    .cart-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 100px;
+    }
+
+    .cart-items {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .cart-items-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+        padding: 15px 0;
+        border-bottom: 1px solid #e0e0e0;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .cart-item {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+        padding: 20px 0;
+        border-bottom: 1px solid #e0e0e0;
+        align-items: center;
+    }
+
+    .item-product {
+        display: flex;
+        align-items: center;
+    }
+
+        .item-product img {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
+    .product-details h4 {
+        margin: 0 0 5px 0;
+        font-size: 1rem;
+    }
+
+    .product-details p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .item-price, .item-total {
+        font-weight: bold;
+    }
+
+    .item-quantity {
+        display: flex;
+        align-items: center;
+    }
+
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .quantity-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+    .item-quantity span {
+        margin: 0 10px;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .remove-btn {
+        background: none;
+        border: none;
+        color: #cc0000;
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 5px;
+    }
+
+        .remove-btn:hover {
+            text-decoration: underline;
+        }
+
+    /* Cart Summary */
+    .cart-summary {
+        margin-top: 31px; /* Aligns with cart-items-header */
+    }
+
+    .summary-details {
+        width: 300px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        position: sticky;
+        top: 20px;
+    }
+
+        .summary-details h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed #e0e0e0;
+    }
+
+        .summary-row.total {
+            font-weight: bold;
+            border-bottom: none;
+            margin-top: 15px;
+            font-size: 1.1rem;
+        }
+
+    .btn-checkout {
+        width: 100%;
+        padding: 12px;
+        background-color: #808080;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 1rem;
+        margin-top: 20px;
+    }
+
+        .btn-checkout:hover {
+            background-color: #666666;
+        }
+
+    /* Reuse product grid styles from main page */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 30px 0 20px 0;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .productCard {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        transition: transform 0.3s ease;
+    }
+
+        .productCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .productCard img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+    .book-title {
+        font-size: 1.1rem;
+        margin: 10px 0 5px 0;
+    }
+
+    .book-author {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0 0 10px 0;
+    }
+
+    .book-price {
+        font-weight: bold;
+        color: #333;
+        display: block;
+        margin-bottom: 15px;
+    }
+
+    .add-to-cart {
+        width: 100%;
+        padding: 10px;
+        background-color: #808080;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+        .add-to-cart:hover {
+            background-color: #666666;
+        }
+</style>
+
+@code {
+    private List<CartItem> cartItems = new List<CartItem>
+    {
+        // Sample data - in a real app, this would come from a service or state management
+        new CartItem
+        {
+            Id = 1,
+            Title = "The Picture of Dorian Gray",
+            Author = "Oscar Wilde",
+            Price = 750,
+            Quantity = 1,
+            ImageUrl = "images/book1.jpg"
+        },
+        new CartItem
+        {
+            Id = 2,
+            Title = "Emma",
+            Author = "Jane Austen",
+            Price = 620,
+            Quantity = 2,
+            ImageUrl = "images/emma.jpg"
+        }
+    };
+
+    private void IncreaseQuantity(CartItem item)
+    {
+        item.Quantity++;
+    }
+
+    private void DecreaseQuantity(CartItem item)
+    {
+        if (item.Quantity > 1)
+        {
+            item.Quantity--;
+        }
+    }
+
+    private void RemoveItem(CartItem item)
+    {
+        cartItems.Remove(item);
+    }
+
+    private void ProceedToCheckout()
+    {
+        NavigationManager.NavigateTo("/checkout");
+    }
+
+    private void NavigateToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private class CartItem
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
+        public string ImageUrl { get; set; }
+    }
+}

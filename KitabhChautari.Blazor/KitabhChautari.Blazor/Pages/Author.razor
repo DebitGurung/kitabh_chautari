@@ -1,0 +1,264 @@
+﻿@* @page "/admin/authors" *@
+@* @using System.ComponentModel.DataAnnotations *@
+@* @using KitabhChautari.Maui.Models *@
+@* @using KitabhChautari.Maui.Services *@
+@* @layout AdminLayout *@
+@* @inject NavigationManager NavigationManager *@
+@* @inject IJSRuntime JSRuntime *@
+@* @inject ApiHandlerService ApiHandlerService *@
+
+@* <div class="mainContainer"> *@
+@*     <h1>Manage Authors</h1> *@
+@*     <div class="authors-container"> *@
+@*         <div class="header-actions"> *@
+@*             <button class="add-btn" @onclick="NavigateToAddAuthor">Add New Author</button> *@
+@*         </div> *@
+@*         @if (ApiHandlerService.Authors.Any()) *@
+@*         { *@
+@*             <table class="authors-table"> *@
+@*                 <thead> *@
+@*                     <tr> *@
+@*                         <th>ID</th> *@
+@*                         <th>Name</th> *@
+@*                         <th>Actions</th> *@
+@*                     </tr> *@
+@*                 </thead> *@
+@*                 <tbody> *@
+@*                     @foreach (var author in ApiHandlerService.Authors) *@
+@*                     { *@
+@*                         @if (editingAuthorId == author.Author_id) *@
+@*                         { *@
+@*                             <tr> *@
+@*                                 <td>@author.Author_id</td> *@
+@*                                 <td> *@
+@*                                     <EditForm Model="@editingAuthor" OnValidSubmit="() => SaveAuthor(author.Author_id)" FormName="@($"EditAuthorForm_{author.Author_id}")"> *@
+@*                                         <DataAnnotationsValidator /> *@
+@*                                         <InputText @bind-Value="editingAuthor.Author_Name" class="form-input" /> *@
+@*                                         <ValidationMessage For="@(() => editingAuthor.Author_Name)" /> *@
+@*                                     </EditForm> *@
+@*                                 </td> *@
+@*                                 <td> *@
+@*                                     <button class="submit-btn" @onclick="() => SaveAuthor(author.Author_id)">Save</button> *@
+@*                                     <button class="cancel-btn" @onclick="CancelEdit">Cancel</button> *@
+@*                                 </td> *@
+@*                             </tr> *@
+@*                         } *@
+@*                         else *@
+@*                         { *@
+@*                             <tr> *@
+@*                                 <td>@author.Author_id</td> *@
+@*                                 <td>@author.Author_Name</td> *@
+@*                                 <td> *@
+@*                                     <button class="edit-btn" @onclick="() => StartEdit(author)">Edit</button> *@
+@*                                     <button class="delete-btn" @onclick="() => DeleteAuthor(author.Author_id)">Delete</button> *@
+@*                                 </td> *@
+@*                             </tr> *@
+@*                         } *@
+@*                     } *@
+@*                 </tbody> *@
+@*             </table> *@
+@*         } *@
+@*         else *@
+@*         { *@
+@*             <p>No authors found.</p> *@
+@*         } *@
+@*     </div> *@
+@* </div> *@
+
+@* <!-- Notification --> *@
+@* <div class="notification" id="notification" style="display: none;"></div> *@
+
+@* <style> *@
+@*     .mainContainer { *@
+@*         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; *@
+@*         max-width: 1200px; *@
+@*         margin: 0 auto; *@
+@*         padding: 20px; *@
+@*         margin-top: 20px; *@
+@*     } *@
+
+@*     h1 { *@
+@*         font-size: 2rem; *@
+@*         color: #333; *@
+@*         margin-bottom: 30px; *@
+@*     } *@
+
+@*     .authors-container { *@
+@*         max-width: 800px; *@
+@*         margin: 0 auto; *@
+@*         padding: 20px; *@
+@*         border: 1px solid #e0e0e0; *@
+@*         border-radius: 8px; *@
+@*         background-color: #fff; *@
+@*     } *@
+
+@*     .header-actions { *@
+@*         margin-bottom: 20px; *@
+@*         text-align: right; *@
+@*     } *@
+
+@*     .add-btn, .submit-btn, .cancel-btn, .edit-btn, .delete-btn { *@
+@*         padding: 8px 15px; *@
+@*         border: none; *@
+@*         border-radius: 4px; *@
+@*         cursor: pointer; *@
+@*         font-weight: 500; *@
+@*         font-size: 0.9rem; *@
+@*         color: white; *@
+@*         margin-right: 5px; *@
+@*     } *@
+
+@*     .add-btn, .submit-btn { *@
+@*         background-color: #4CAF50; *@
+@*     } *@
+
+@*         .add-btn:hover, .submit-btn:hover { *@
+@*             background-color: #45a049; *@
+@*         } *@
+
+@*     .cancel-btn { *@
+@*         background-color: #666; *@
+@*     } *@
+
+@*         .cancel-btn:hover { *@
+@*             background-color: #555; *@
+@*         } *@
+
+@*     .edit-btn { *@
+@*         background-color: #2196F3; *@
+@*     } *@
+
+@*         .edit-btn:hover { *@
+@*             background-color: #1976D2; *@
+@*         } *@
+
+@*     .delete-btn { *@
+@*         background-color: #f44336; *@
+@*     } *@
+
+@*         .delete-btn:hover { *@
+@*             background-color: #d32f2f; *@
+@*         } *@
+
+@*     .authors-table { *@
+@*         width: 100%; *@
+@*         border-collapse: collapse; *@
+@*     } *@
+
+@*         .authors-table th, .authors-table td { *@
+@*             padding: 10px; *@
+@*             text-align: left; *@
+@*             border-bottom: 1px solid #ddd; *@
+@*         } *@
+
+@*         .authors-table th { *@
+@*             background-color: #f5f5f5; *@
+@*             font-weight: 600; *@
+@*         } *@
+
+@*     .form-input { *@
+@*         width: 100%; *@
+@*         padding: 8px; *@
+@*         border: 1px solid #ddd; *@
+@*         border-radius: 4px; *@
+@*         font-size: 1rem; *@
+@*     } *@
+
+@*         .form-input:focus { *@
+@*             outline: none; *@
+@*             border-color: #4CAF50; *@
+@*             box-shadow: 0 0 5px rgba(76, 175, 80, 0.3); *@
+@*         } *@
+
+@*     .notification { *@
+@*         position: fixed; *@
+@*         bottom: 20px; *@
+@*         right: 20px; *@
+@*         background-color: #4CAF50; *@
+@*         color: white; *@
+@*         padding: 15px; *@
+@*         border-radius: 4px; *@
+@*         z-index: 1000; *@
+@*         display: none; *@
+@*     } *@
+
+@*         .notification.error { *@
+@*             background-color: #f44336; *@
+@*         } *@
+@* </style> *@
+
+@* <script> *@
+@*     function showNotification(message, isError = false) { *@
+@*         const notification = document.getElementById('notification'); *@
+@*         notification.textContent = message; *@
+@*         notification.className = 'notification' + (isError ? ' error' : ''); *@
+@*         notification.style.display = 'block'; *@
+@*         setTimeout(() => { *@
+@*             notification.style.display = 'none'; *@
+@*         }, 3000); *@
+@*     } *@
+@* </script> *@
+
+@* @code { *@
+@*     private int? editingAuthorId; *@
+@*     private AuthorDto editingAuthor = new(); *@
+
+@*     protected override async Task OnInitializedAsync() *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             await ApiHandlerService.LoadAuthorsAsync(); *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             await JSRuntime.InvokeVoidAsync("showNotification", $"Error loading authors: {ex.Message}", true); *@
+@*         } *@
+@*     } *@
+
+@*     private void NavigateToAddAuthor() *@
+@*     { *@
+@*         NavigationManager.NavigateTo("/admin/addauthor"); *@
+@*     } *@
+
+@*     private void StartEdit(AuthorDto author) *@
+@*     { *@
+@*         editingAuthorId = author.Author_id; *@
+@*         editingAuthor = new AuthorDto { Author_id = author.Author_id, Author_Name = author.Author_Name }; *@
+@*     } *@
+
+@*     private async Task SaveAuthor(int authorId) *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             await ApiHandlerService.UpdateAuthorAsync(editingAuthor); *@
+@*             await JSRuntime.InvokeVoidAsync("showNotification", $"{editingAuthor.Author_Name} updated successfully!"); *@
+@*             editingAuthorId = null; *@
+@*             editingAuthor = new(); *@
+@*             await ApiHandlerService.LoadAuthorsAsync(); // Refresh the list *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             await JSRuntime.InvokeVoidAsync("showNotification", $"Error updating author: {ex.Message}", true); *@
+@*         } *@
+@*     } *@
+
+@*     private void CancelEdit() *@
+@*     { *@
+@*         editingAuthorId = null; *@
+@*         editingAuthor = new(); *@
+@*     } *@
+
+@*     private async Task DeleteAuthor(int authorId) *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             await ApiHandlerService.DeleteAuthorAsync(authorId); *@
+@*             await JSRuntime.InvokeVoidAsync("showNotification", "Author deleted successfully!"); *@
+@*             await ApiHandlerService.LoadAuthorsAsync(); // Refresh the list *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             await JSRuntime.InvokeVoidAsync("showNotification", $"Error deleting author: {ex.Message}", true); *@
+@*         } *@
+@*     } *@
+@* } *@

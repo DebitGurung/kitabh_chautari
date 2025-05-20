@@ -1,0 +1,449 @@
+﻿@page "/profile"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<h3>Profile</h3>
+
+<!-- Main Content -->
+<div class="mainContainer">
+    <div class="profileLayout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="userAvatar">
+                <span class="bi bi-person-circle" style="font-size: 3rem; color: #666;"></span>
+            </div>
+            <nav class="sidebarNav">
+                <NavLink class="nav-item" href="/profile" Match="NavLinkMatch.All">
+                    <span class="bi bi-person-fill"></span> My Profile
+                </NavLink>
+                <NavLink class="nav-item" href="/orderhistory">
+                    <span class="bi bi-clock-history"></span> Order History
+                </NavLink>
+                <NavLink class="nav-item" href="/addresses">
+                    <span class="bi bi-geo-alt"></span> Addresses
+                </NavLink>
+                <NavLink class="nav-item" href="/logout">
+                    <span class="bi bi-box-arrow-right"></span> Logout
+                </NavLink>
+            </nav>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="mainContent">
+            <h4>Order History</h4>
+            <div class="orderSection">
+                @foreach (var order in orders)
+                {
+                    <div class="orderCard">
+                        <div class="orderImagePlaceholder"></div>
+                        <div class="orderDetails">
+                            <p><strong>Order ID:</strong> @order.Id</p>
+                            <p><strong>Book:</strong> @order.BookTitle</p>
+                            <p><strong>Order Date:</strong> @order.OrderDate.ToString("MMMM dd, yyyy")</p>
+                            <p><strong>Status:</strong> @order.Status</p>
+                            @if (order.Status == "Pending")
+                            {
+                                <button class="cancelOrderButton" @onclick="() => CancelOrder(order.Id)">Cancel Order</button>
+                            }
+                            <p><strong>Price:</strong> NRs. @order.Price.ToString("N0") Qty: @order.Quantity</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <h4>Order Completed</h4>
+            <div class="orderCompletedSection">
+                @foreach (var order in orders.Where(o => o.Status == "Delivered"))
+                {
+                    <div class="orderCard">
+                        <div class="orderImagePlaceholder"></div>
+                        <div class="orderDetails">
+                            <p><strong>Order ID:</strong> @order.Id</p>
+                            <p><strong>Book:</strong> @order.BookTitle</p>
+                            <p><strong>Order Date:</strong> @order.OrderDate.ToString("MMMM dd, yyyy")</p>
+                            <p><strong>Status:</strong> @order.Status</p>
+                            <p><strong>Price:</strong> NRs. @order.Price.ToString("N0") Qty: @order.Quantity</p>
+                            @if (purchasedBooks.Any(pb => pb.Id == order.Id && pb.Review == null))
+                            {
+                                <textarea placeholder="Write your review..." @bind="GetPurchasedBook(order.Id).NewReviewText"></textarea>
+                                <select @bind="GetPurchasedBook(order.Id).NewReviewRating">
+                                    <option value="0">Select Rating</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                                <button class="submitReviewButton" @onclick="() => SubmitReview(order.Id)">Submit Review</button>
+                            }
+                            else
+                            {
+                                <button class="submitReviewButton" @onclick="() => ShowReviewSubmittedMessage()">Review Submitted</button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-grid">
+        <div class="footerCard">
+            <h3 class="footer-title">R.Serd & Ag</h3>
+            <p class="infoName">7 Months chotulomal Cleftiah</p>
+            <p class="infoName">7 Empae nstti Cired of ants</p>
+            <p class="infoName">Cnloro Cmtcarotn Cranite</p>
+            <p class="infoName">Tevion on Tire hort Calmmc</p>
+        </div>
+        <div class="footerCard">
+            <h3 class="footer-title">Colage bo</h3>
+            <p class="infoName">Sstiot Bogorotos at meen</p>
+            <p class="infoName">Amato tport olst ov ovor</p>
+            <p class="infoName">Toltem Meac ootn of chort</p>
+            <p class="infoName">Eatird Onen oltn at orol</p>
+        </div>
+        <div class="footerCard">
+            <h3 class="footer-title">Sae Ltr Go</h3>
+            <span class="bi bi-facebook"></span>
+            <span class="bi bi-instagram"></span>
+            <span class="bi bi-tiktok"></span>
+            <span class="bi bi-twitter-x"></span>
+        </div>
+    </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification" style="display: none;"></div>
+
+<style>
+    .mainContainer {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 30px;
+        background-color: #f5f5f5;
+    }
+
+    .profileLayout {
+        display: flex;
+        gap: 20px;
+    }
+
+    .sidebar {
+        width: 200px;
+        background-color: #e0e0e0;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .userAvatar {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .sidebarNav .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        color: #333;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+        .sidebarNav .nav-item .bi {
+            margin-right: 10px;
+        }
+
+        .sidebarNav .nav-item:hover {
+            background-color: #d0d0d0;
+        }
+
+    .mainContent {
+        flex: 1;
+        padding: 15px;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+    }
+
+    .orderSection, .orderCompletedSection {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .orderCard {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #e6f0fa;
+    }
+
+    .orderImagePlaceholder {
+        width: 80px;
+        height: 100px;
+        background-color: #ccc;
+        margin-right: 15px;
+        border-radius: 4px;
+    }
+
+    .orderDetails {
+        flex: 1;
+    }
+
+        .orderDetails p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+    .cancelOrderButton {
+        padding: 5px 10px;
+        background-color: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .cancelOrderButton:hover {
+            background-color: #cc0000;
+        }
+
+    .submitReviewButton {
+        padding: 5px 10px;
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+        .submitReviewButton:hover {
+            background-color: #005bb5;
+        }
+
+    .orderDetails textarea {
+        width: 100%;
+        min-height: 60px;
+        padding: 5px;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
+    }
+
+    .orderDetails select {
+        padding: 5px;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+        padding: 20px 0;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .footerCard {
+        padding: 10px;
+    }
+
+    .footer-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .infoName {
+        margin: 5px 0;
+        color: #666;
+    }
+
+    .bi {
+        font-size: 1.5rem;
+        margin-right: 10px;
+        color: #555;
+        cursor: pointer;
+    }
+
+        .bi:hover {
+            color: #0066cc;
+        }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px;
+        border-radius: 4px;
+        z-index: 1000;
+        display: none;
+    }
+</style>
+
+<script>
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
+@code {
+    private UserProfile userProfile;
+    private List<Book> recentlyViewedBooks;
+    private List<Order> orders;
+    private List<PurchasedBook> purchasedBooks;
+
+    protected override void OnInitialized()
+    {
+        // Placeholder user data
+        userProfile = new UserProfile
+            {
+                Name = "John Doe",
+                Email = "john.doe@example.com",
+                MemberSince = new DateTime(2023, 5, 15)
+            };
+
+        // Placeholder recently viewed books
+        recentlyViewedBooks = new List<Book>
+        {
+            new Book { Id = 1, Title = "The Picture of Dorian Gray", Author = "Oscar Wilde", Price = 750, ImageUrl = "images/book1.jpg", Genre = "Fiction", Rating = 4.5m, Publisher = "Penguin" },
+            new Book { Id = 2, Title = "Emma", Author = "Jane Austen", Price = 620, ImageUrl = "images/emma.jpg", Genre = "Romance", Rating = 4.0m, Publisher = "Oxford" },
+            new Book { Id = 3, Title = "Ivanhoe", Author = "Walter Scott", Price = 680, ImageUrl = "images/scott.jpg", Genre = "Historical", Rating = 3.8m, Publisher = "Penguin" }
+        };
+
+        // Placeholder order history with price and quantity
+        orders = new List<Order>
+        {
+            new Order { Id = 1, BookTitle = "The Picture of Dorian Gray", OrderDate = new DateTime(2025, 4, 10), Status = "Pending", Price = 750, Quantity = 1 },
+            new Order { Id = 2, BookTitle = "Emma", OrderDate = new DateTime(2025, 3, 15), Status = "Delivered", Price = 620, Quantity = 1 }
+        };
+
+        // Placeholder purchased books (only those with status "Delivered")
+        purchasedBooks = new List<PurchasedBook>
+        {
+            new PurchasedBook
+            {
+                Id = 2,
+                Title = "Emma",
+                Author = "Jane Austen",
+                Review = new Review { Text = "Great book, loved the romance!", Rating = 4 }
+            },
+            new PurchasedBook
+            {
+                Id = 4,
+                Title = "Death of a Salesman",
+                Author = "Arthur Miller",
+                Review = null // No review yet
+            }
+        };
+    }
+
+    private PurchasedBook GetPurchasedBook(int orderId)
+    {
+        return purchasedBooks.FirstOrDefault(pb => pb.Id == orderId) ?? new PurchasedBook { Id = orderId };
+    }
+
+    private async Task EditProfile()
+    {
+        await JSRuntime.InvokeVoidAsync("showNotification", "Edit Profile functionality coming soon!");
+    }
+
+    private async Task CancelOrder(int orderId)
+    {
+        var order = orders.FirstOrDefault(o => o.Id == orderId);
+        if (order != null && order.Status == "Pending")
+        {
+            order.Status = "Cancelled";
+            await JSRuntime.InvokeVoidAsync("showNotification", $"Order {orderId} cancelled successfully!");
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitReview(int bookId)
+    {
+        var book = GetPurchasedBook(bookId);
+        if (book != null && !string.IsNullOrWhiteSpace(book.NewReviewText) && book.NewReviewRating > 0)
+        {
+            book.Review = new Review
+                {
+                    Text = book.NewReviewText,
+                    Rating = book.NewReviewRating
+                };
+            book.NewReviewText = string.Empty;
+            book.NewReviewRating = 0;
+            await JSRuntime.InvokeVoidAsync("showNotification", $"Review submitted successfully!");
+            StateHasChanged();
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("showNotification", "Please provide a valid review and rating.");
+        }
+    }
+
+    private async Task ShowReviewSubmittedMessage()
+    {
+        await JSRuntime.InvokeVoidAsync("showNotification", "You've already submitted a review for this book.");
+    }
+
+    private class UserProfile
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public DateTime MemberSince { get; set; }
+    }
+
+    private class Book
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public decimal Price { get; set; }
+        public string ImageUrl { get; set; }
+        public string Genre { get; set; }
+        public decimal Rating { get; set; }
+        public string Publisher { get; set; }
+    }
+
+    private class Order
+    {
+        public int Id { get; set; }
+        public string BookTitle { get; set; }
+        public DateTime OrderDate { get; set; }
+        public string Status { get; set; }
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
+    }
+
+    private class Review
+    {
+        public string Text { get; set; }
+        public int Rating { get; set; }
+    }
+
+    private class PurchasedBook
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public Review Review { get; set; }
+        public string NewReviewText { get; set; } = string.Empty;
+        public int NewReviewRating { get; set; }
+    }
+}

@@ -66,4 +66,22 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Controller\" />
+      <Folder Include="NewFolder\" />
+      <Folder Include="slider\" />
+      <Folder Include="wwwroot\Images\NewFolder\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\Images\bacteriology_13102768.png" />
+      <None Include="wwwroot\Images\book_10558549.png" />
+      <None Include="wwwroot\Images\comedy_9250759.png" />
+      <None Include="wwwroot\Images\franzkafkameta.jpg" />
+      <None Include="wwwroot\Images\icons8-action-62.png" />
+      <None Include="wwwroot\Images\icons8-ancient-62.png" />
+      <None Include="wwwroot\Images\icons8-architecture-62.png" />
+      <None Include="wwwroot\Images\icons8-biography-62.png" />
+    </ItemGroup>
+
 </Project>

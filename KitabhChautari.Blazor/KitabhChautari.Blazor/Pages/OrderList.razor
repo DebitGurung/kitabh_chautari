@@ -1,0 +1,116 @@
+﻿@page "/admin/orders"
+@using Kitabh_Chautari.Components.Layout
+@layout AdminLayout
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<div class="orders-container">
+    <h1>Orders</h1>
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Order Id</th>
+                <th>Book Name</th>
+                <th>Customer Name</th>
+                <th>Order Qty</th>
+                <th>Order Date</th>
+                <th>Total Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.BookName</td>
+                    <td>@order.CustomerName</td>
+                    <td>@order.Quantity</td>
+                    <td>@order.OrderDate.ToString("yyyy/MM/dd")</td>
+                    <td>Rs. @order.TotalPrice.ToString("N0")</td>
+                    <td>
+                        <button class="delete-btn" @onclick="() => DeleteOrder(order.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="pagination">
+        <span>1</span>
+        <span>2</span>
+        <span>...</span>
+    </div>
+</div>
+
+<style>
+    .orders-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 60px;
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .orders-table th, .orders-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .orders-table th {
+            background-color: #f5f5f5;
+        }
+
+        .orders-table .delete-btn {
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+            .orders-table .delete-btn:hover {
+                background-color: #da190b;
+            }
+
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+        .pagination span {
+            margin: 0 5px;
+            cursor: pointer;
+        }
+</style>
+
+@code {
+    private List<Order> orders = new List<Order>
+    {
+        new Order { Id = 1, BookName = "The Picture of Dorian Gray", CustomerName = "John Doe", Quantity = 2, OrderDate = new DateTime(2023, 5, 14), TotalPrice = 1500 },
+        new Order { Id = 2, BookName = "Emma", CustomerName = "Jane Smith", Quantity = 1, OrderDate = new DateTime(2023, 5, 14), TotalPrice = 620 },
+        new Order { Id = 3, BookName = "Ivanhoe", CustomerName = "Alice Brown", Quantity = 3, OrderDate = new DateTime(2023, 5, 14), TotalPrice = 2040 },
+        new Order { Id = 4, BookName = "Death of a Salesman", CustomerName = "Bob Johnson", Quantity = 2, OrderDate = new DateTime(2023, 5, 14), TotalPrice = 1400 }
+    };
+
+    private class Order
+    {
+        public int Id { get; set; }
+        public string BookName { get; set; }
+        public string CustomerName { get; set; }
+        public int Quantity { get; set; }
+        public DateTime OrderDate { get; set; }
+        public decimal TotalPrice { get; set; }
+    }
+
+    private void DeleteOrder(int id)
+    {
+        orders.RemoveAll(o => o.Id == id);
+    }
+}

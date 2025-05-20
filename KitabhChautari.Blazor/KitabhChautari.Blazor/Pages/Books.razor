@@ -1,0 +1,146 @@
+﻿@page "/admin/books"
+@using Kitabh_Chautari.Components.Layout
+@using static Kitabh_Chautari.Components.Pages.AddBook
+@layout AdminLayout
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<div class="books-container">
+    <h1>Books</h1>
+    <button class="add-book-btn" @onclick="AddNewBook">Add Book</button>
+    <table class="books-table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Price (NRP)</th>
+                <th>Stock</th>
+                <th>Discount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in SharedBookData.Books)
+            {
+                <tr>
+                    <td>
+                        <img src="@book.ImageUrl" alt="@book.Title" class="book-image" />
+                    </td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.Price.ToString("N0")</td>
+                    <td>@book.Stock</td>
+                    <td>
+                        @if (book.Discount > 0)
+                        {
+                            <span>@book.Discount%</span>
+                        }
+                        else
+                        {
+                            <button @onclick="() => NavigateToAddDiscount(book.Id)">Add Discount</button>
+                        }
+                    </td>
+                    <td>
+                        <button @onclick="() => EditBook(book.Id)">Edit</button>
+                        <button @onclick="() => DeleteBook(book.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .books-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 20px; /* Adjusted to avoid overlapping with navbar */
+    }
+
+    .add-book-btn {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+        .add-book-btn:hover {
+            background-color: #45a049;
+        }
+
+    .books-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .books-table th, .books-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .books-table th {
+            background-color: #f5f5f5;
+        }
+
+        .books-table button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+            .books-table button:nth-child(1) {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+
+            .books-table button:nth-child(2) {
+                background-color: #f44336;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+
+    .book-image {
+        width: 50px;
+        height: 75px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+</style>
+
+@code {
+    private async void AddNewBook()
+    {
+        try
+        {
+            NavigationManager.NavigateTo("/admin/addbook");
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.log", $"Navigation error: {ex.Message}");
+        }
+    }
+    private void EditBook(int id)
+    {
+        NavigationManager.NavigateTo($"/admin/books/edit/{id}");
+    }
+
+    private void DeleteBook(int id)
+    {
+        SharedBookData.Books.RemoveAll(b => b.Id == id);
+    }
+
+    private void NavigateToAddDiscount(int bookId)
+    {
+        NavigationManager.NavigateTo($"/admin/books/adddiscount/{bookId}");
+    }
+}

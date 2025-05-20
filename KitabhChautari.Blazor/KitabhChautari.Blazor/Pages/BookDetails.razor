@@ -1,0 +1,460 @@
+﻿@page "/bookdetails/{BookId:int}"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<!-- Main Content -->
+<div class="mainContainer">
+    <!-- Book Details Section -->
+    <div class="book-details-container">
+        <div class="book-image">
+            <img src="@selectedBook.ImageUrl" alt="@selectedBook.Title" />
+        </div>
+        <div class="book-info">
+            <h1 class="book-title">@selectedBook.Title</h1>
+            <p class="book-author">by @selectedBook.Author</p>
+            <div class="quantity-selector">
+                <label>Quantity:</label>
+                <button class="quantity-btn" @onclick="DecreaseQuantity">-</button>
+                <span>@quantity</span>
+                <button class="quantity-btn" @onclick="IncreaseQuantity">+</button>
+            </div>
+            <div class="price-section">
+                <span class="book-price">NRP @selectedBook.Price.ToString("N0")</span>
+            </div>
+            <div class="action-buttons">
+                <button class="add-to-cart" @onclick="AddToCart">Add To Cart</button>
+                <button class="buy-now" @onclick="BuyNow">Buy Now</button>
+                <button class="add-to-wishlist" @onclick="AddToWishlist">Add To Wishlist</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description and Specifications Section -->
+    <div class="desc-spec-container">
+        <div class="description-section">
+            <h2>Description</h2>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+        </div>
+        <div class="specifications-section">
+            <h2>Specifications</h2>
+            <ul>
+                <li>Lorem ipsum dolor sit amet.</li>
+                <li>Consectetur adipiscing elit sed.</li>
+                <li>Eiusmod tempor incididunt ut labore.</li>
+                <li>Dolore magna aliqua ut enim.</li>
+                <li>Ad minim veniam quis nostrud.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Author Section -->
+    <div class="author-section">
+        <h2>Author</h2>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        </p>
+    </div>
+
+    <!-- You Might Also Like Section -->
+    <div class="secContainer">
+        <div class="section-header">
+            <h2>You Might Also Like</h2>
+            <a href="#" class="view-all">View All</a>
+        </div>
+
+        <div class="products-grid">
+            @foreach (var book in relatedBooks)
+            {
+                <div class="productCard">
+                    <img src="@book.ImageUrl" alt="@book.Title" />
+                    <h3 class="book-title">@book.Title</h3>
+                    <p class="book-author">@book.Author</p>
+                    <span class="book-price">NRP @book.Price.ToString("N0")</span>
+                    <button class="add-to-cart" @onclick="() => AddToCartRelated(book.Title)">Add To Cart</button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-grid">
+        <div class="footerCard">
+            <h3 class="footer-title">About Us</h3>
+            <p class="infoName">Debit Gurung</p>
+            <p class="infoName">Tuphan Gurung</p>
+            <p class="infoName">Sangam Thapa</p>
+            <p class="infoName">Sujal Gurung</p>
+        </div>
+        <div class="footerCard">
+            <h3 class="footer-title">Contact Us</h3>
+            <p class="contact-title">kitab@gmail.com</p>
+        </div>
+        <div class="footerCard">
+            <h3 class="footer-title">Join Us On</h3>
+            <span class="bi bi-facebook"></span>
+            <span class="bi bi-instagram"></span>
+            <span class="bi bi-tiktok"></span>
+            <span class="bi bi-twitter-x"></span>
+        </div>
+    </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification" style="display: none;"></div>
+
+<style>
+    .mainContainer {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 60px; /* Increased gap between navbar and main content */
+    }
+
+    /* Book Details Section */
+    .book-details-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .book-image img {
+        width: 100%;
+        height: 500px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .book-info {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+        .book-info .book-title {
+            font-size: 2rem;
+            margin: 0;
+            color: #333;
+        }
+
+        .book-info .book-author {
+            font-size: 1.2rem;
+            color: #666;
+            margin: 0;
+        }
+
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .quantity-selector label {
+            font-size: 1rem;
+            color: #555;
+        }
+
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .quantity-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+    .quantity-selector span {
+        min-width: 20px;
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .price-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .book-price {
+        font-size: 1.5rem;
+        font Drought-weight: bold;
+        color: #333;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+    }
+
+    .add-to-cart, .buy-now, .add-to-wishlist {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 1rem;
+        color: white;
+    }
+
+    .add-to-cart {
+        background-color: #4CAF50;
+    }
+
+        .add-to-cart:hover {
+            background-color: #45a049;
+        }
+
+    .buy-now {
+        background-color: #ff6200; /* Orange color for Buy Now button */
+    }
+
+        .buy-now:hover {
+            background-color: #e55b00;
+        }
+
+    .add-to-wishlist {
+        background-color: #0066cc; /* Blue color for Add to Wishlist button */
+    }
+
+        .add-to-wishlist:hover {
+            background-color: #005bb5;
+        }
+
+    /* Description and Specifications Sections */
+    .desc-spec-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .description-section h2, .specifications-section h2, .author-section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .description-section p, .author-section p {
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .specifications-section ul {
+        list-style-type: disc;
+        padding-left: 20px;
+        color: #666;
+    }
+
+    .specifications-section li {
+        margin-bottom: 10px;
+    }
+
+    /* Author Section */
+    .author-section {
+        margin-bottom: 40px;
+    }
+
+    /* You Might Also Like Section */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 30px 0 20px 0;
+    }
+
+    .view-all {
+        color: #0066cc;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .productCard {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        transition: transform 0.3s ease;
+    }
+
+        .productCard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .productCard img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .productCard .book-title {
+            font-size: 1.1rem;
+            margin: 10px 0 5px 0;
+        }
+
+        .productCard .book-author {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0 0 10px 0;
+        }
+
+        .productCard .book-price {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+    /* Footer */
+    .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 50px;
+        padding: 30px 0;
+        border-top: 1px solid Escort #e0e0e0;
+    }
+
+    .footer-title {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        colorBeverly color: #333;
+    }
+
+    .infoName, .contact-title {
+        margin: 5px 0;
+        color: #666;
+    }
+
+    .bi {
+        font-size: 1.5rem;
+        margin-right: 15px;
+        color: #555;
+        cursor: pointer;
+    }
+
+        .bi:hover {
+            color: #0066cc;
+        }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px;
+        border-radius: 4px;
+        z-index: 1000;
+        display: none;
+    }
+</style>
+
+<script>
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
+@code {
+    [Parameter]
+    public int BookId { get; set; }
+
+    private Book selectedBook;
+    private int quantity = 1;
+    private List<Book> relatedBooks = new List<Book>
+    {
+        new Book { Title = "The Picture of Dorian Gray", Author = "Oscar Wilde", Price = 750, ImageUrl = "images/book1.jpg" },
+        new Book { Title = "Emma", Author = "Jane Austen", Price = 620, ImageUrl = "images/emma.jpg" },
+        new Book { Title = "Ivanhoe", Author = "Walter Scott", Price = 680, ImageUrl = "images/scott.jpg" },
+        new Book { Title = "Death of a Salesman", Author = "Arthur Miller", Price = 700, ImageUrl = "images/deathofsales.jpg" }
+    };
+
+    private List<Book> allBooks = new List<Book>
+    {
+        new Book { Id = 1, Title = "The Picture of Dorian Gray", Author = "Oscar Wilde", Price = 750, ImageUrl = "images/book1.jpg" },
+        new Book { Id = 2, Title = "Emma", Author = "Jane Austen", Price = 620, ImageUrl = "images/emma.jpg" },
+        new Book { Id = 3, Title = "Ivanhoe", Author = "Walter Scott", Price = 680, ImageUrl = "images/scott.jpg" },
+        new Book { Id = 4, Title = "Death of a Salesman", Author = "Arthur Miller", Price = 700, ImageUrl = "images/deathofsales.jpg" },
+        new Book { Id = 5, Title = "A Little Life", Author = "Hanya Yanagihara", Price = 950, ImageUrl = "images/littlelife.jpg" },
+        new Book { Id = 6, Title = "Pride and Prejudice", Author = "Jane Austen", Price = 600, ImageUrl = "images/prideprejudice.jpg" },
+        new Book { Id = 7, Title = "Persuasion", Author = "Jane Austen", Price = 580, ImageUrl = "images/persuasion.jpg" },
+        new Book { Id = 8, Title = "Resurrection", Author = "Leo Tolstoy", Price = 820, ImageUrl = "images/resurrection.jpg" }
+    };
+
+    protected override void OnInitialized()
+    {
+        selectedBook = allBooks.FirstOrDefault(b => b.Id == BookId) ?? allBooks[0];
+    }
+
+    private void IncreaseQuantity()
+    {
+        quantity++;
+    }
+
+    private void DecreaseQuantity()
+    {
+        if (quantity > 1)
+        {
+            quantity--;
+        }
+    }
+
+    private async Task AddToCart()
+    {
+        await JSRuntime.InvokeVoidAsync("showNotification", $"{selectedBook.Title} added to cart successfully!");
+        NavigationManager.NavigateTo("/cart");
+    }
+
+    private async Task BuyNow()
+    {
+        await JSRuntime.InvokeVoidAsync("showNotification", $"Proceeding to order for {selectedBook.Title}!");
+        NavigationManager.NavigateTo("/order");
+    }
+
+    private async Task AddToCartRelated(string bookTitle)
+    {
+        await JSRuntime.InvokeVoidAsync("showNotification", $"{bookTitle} added to cart successfully!");
+        NavigationManager.NavigateTo("/cart");
+    }
+
+    private async Task AddToWishlist()
+    {
+        await JSRuntime.InvokeVoidAsync("showNotification", $"{selectedBook.Title} added to wishlist!");
+    }
+
+    private class Book
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public decimal Price { get; set; }
+        public string ImageUrl { get; set; }
+    }
+}

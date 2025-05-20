@@ -1,0 +1,165 @@
+﻿@page "/admin/users"
+@using Kitabh_Chautari.Components.Layout
+@layout AdminLayout
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<div class="users-container">
+    <h1>Users</h1>
+   
+    <table class="users-table">
+        <thead>
+            <tr>
+                <th>Profile</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>
+                        <img src="@user.ProfileImageUrl" alt="@user.Name" class="user-image" />
+                    </td>
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>@user.Role</td>
+                    <td>
+                        <span class="status-badge @user.Status.ToLower()">@user.Status</span>
+                    </td>
+                    <td>@user.JoinedDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <button @onclick="() => EditUser(user.Id)">Edit</button>
+                        <button @onclick="() => DeleteUser(user.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .users-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 60px;
+    }
+
+    .add-user-btn {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+        .add-user-btn:hover {
+            background-color: #45a049;
+        }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .users-table th, .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .users-table th {
+            background-color: #f5f5f5;
+        }
+
+        .users-table button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+            .users-table button:nth-child(1) {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+
+            .users-table button:nth-child(2) {
+                background-color: #f44336;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+
+    .user-image {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+        .status-badge.active {
+            background-color: #e6f7ee;
+            color: #28a745;
+        }
+
+        .status-badge.inactive {
+            background-color: #fef0f0;
+            color: #dc3545;
+        }
+
+        .status-badge.pending {
+            background-color: #fff8e6;
+            color: #ffc107;
+        }
+</style>
+
+@code {
+    private List<User> users = new List<User>
+    {
+        new User { Id = 1, Name = "John Doe", Email = "john@example.com", Role = "Admin", Status = "Active", JoinedDate = DateTime.Now.AddDays(-30), ProfileImageUrl = "https://randomuser.me/api/portraits/men/1.jpg" },
+        new User { Id = 2, Name = "Jane Smith", Email = "jane@example.com", Role = "Editor", Status = "Active", JoinedDate = DateTime.Now.AddDays(-15), ProfileImageUrl = "https://randomuser.me/api/portraits/women/1.jpg" },
+        new User { Id = 3, Name = "Robert Johnson", Email = "robert@example.com", Role = "Customer", Status = "Inactive", JoinedDate = DateTime.Now.AddDays(-60), ProfileImageUrl = "https://randomuser.me/api/portraits/men/2.jpg" },
+        new User { Id = 4, Name = "Emily Davis", Email = "emily@example.com", Role = "Customer", Status = "Pending", JoinedDate = DateTime.Now.AddDays(-5), ProfileImageUrl = "https://randomuser.me/api/portraits/women/2.jpg" }
+    };
+
+    private class User
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Role { get; set; }
+        public string Status { get; set; }
+        public DateTime JoinedDate { get; set; }
+        public string ProfileImageUrl { get; set; }
+    }
+
+
+
+    private void EditUser(int id)
+    {
+        NavigationManager.NavigateTo($"/edituser/{id}");
+    }
+
+    private void DeleteUser(int id)
+    {
+        users.RemoveAll(u => u.Id == id);
+    }
+}

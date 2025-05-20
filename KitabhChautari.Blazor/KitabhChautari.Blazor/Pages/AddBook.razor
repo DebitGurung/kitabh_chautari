@@ -1,0 +1,209 @@
+﻿@page "/admin/addbook"
+@using Kitabh_Chautari.Components.Layout
+@layout AdminLayout
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<div class="mainContainer">
+    <h1>Add New Book</h1>
+    <div class="add-book-container">
+        <EditForm Model="@newBook" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <InputText id="title" @bind-Value="newBook.Title" class="form-input" />
+                <ValidationMessage For="@(() => newBook.Title)" />
+            </div>
+            <div class="form-group">
+                <label for="author">Author:</label>
+                <InputText id="author" @bind-Value="newBook.Author" class="form-input" />
+                <ValidationMessage For="@(() => newBook.Author)" />
+            </div>
+            <div class="form-group">
+                <label for="price">Price (NRP):</label>
+                <InputNumber id="price" @bind-Value="newBook.Price" class="form-input" />
+                <ValidationMessage For="@(() => newBook.Price)" />
+            </div>
+            <div class="form-group">
+                <label for="imageUrl">Image URL:</label>
+                <InputText id="imageUrl" @bind-Value="newBook.ImageUrl" class="form-input" />
+                <ValidationMessage For="@(() => newBook.ImageUrl)" />
+            </div>
+            <div class="form-group">
+                <label for="stock">Stock:</label>
+                <InputNumber id="stock" @bind-Value="newBook.Stock" class="form-input" />
+                <ValidationMessage For="@(() => newBook.Stock)" />
+            </div>
+            <div class="form-group">
+                <label for="discount">Discount (%):</label>
+                <InputNumber id="discount" @bind-Value="newBook.Discount" class="form-input" />
+                <ValidationMessage For="@(() => newBook.Discount)" />
+            </div>
+            <div class="action-buttons">
+                <button type="submit" class="submit-btn">Add Book</button>
+                <button type="button" class="cancel-btn" @onclick="Cancel">Cancel</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification" style="display: none;"></div>
+
+<style>
+    .mainContainer {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        margin-top: 20px; /* Adjusted to avoid overlapping with navbar */
+    }
+
+    h1 {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 30px;
+    }
+
+    .add-book-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fff;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #4CAF50;
+        box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .submit-btn, .cancel-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 1rem;
+        color: white;
+    }
+
+    .submit-btn {
+        background-color: #4CAF50;
+    }
+
+    .submit-btn:hover {
+        background-color: #45a049;
+    }
+
+    .cancel-btn {
+        background-color: #666;
+    }
+
+    .cancel-btn:hover {
+        background-color: #555;
+    }
+
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px;
+        border-radius: 4px;
+        z-index: 1000;
+        display: none;
+    }
+</style>
+
+<script>
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
+@code {
+    private Book newBook = new Book();
+
+    private async Task HandleValidSubmit()
+    {
+        // Generate a new ID (simple increment for demo purposes)
+        newBook.Id = SharedBookData.Books.Any() ? SharedBookData.Books.Max(b => b.Id) + 1 : 1;
+
+        // Add the new book to the shared list
+        SharedBookData.Books.Add(newBook);
+
+        await JSRuntime.InvokeVoidAsync("showNotification", $"{newBook.Title} added successfully!");
+
+        // Reset the form
+        newBook = new Book();
+
+        // Navigate back to the books list
+        NavigationManager.NavigateTo("/admin/books");
+    }
+
+    private void Cancel()
+    {
+        // Reset the form and navigate back
+        newBook = new Book();
+        NavigationManager.NavigateTo("/admin/books");
+    }
+
+
+// Define the Book class as public
+public class Book
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Author { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
+    public int Stock { get; set; }
+    public int Discount { get; set; }
+}
+
+// Static class to share book data (for demo purposes)
+public static class SharedBookData
+{
+    public static List<Book> Books { get; set; } = new List<Book>
+    {
+        new Book { Id = 1, Title = "The Picture of Dorian Gray", Author = "Oscar Wilde", Price = 750, Stock = 100, Discount = 0, ImageUrl = "images/book1.jpg" },
+        new Book { Id = 2, Title = "Emma", Author = "Jane Austen", Price = 620, Stock = 100, Discount = 10, ImageUrl = "images/emma.jpg" },
+        new Book { Id = 3, Title = "Ivanhoe", Author = "Walter Scott", Price = 680, Stock = 100, Discount = 0, ImageUrl = "images/scott.jpg" },
+        new Book { Id = 4, Title = "Death of a Salesman", Author = "Arthur Miller", Price = 700, Stock = 100, Discount = 5, ImageUrl = "images/deathofsales.jpg" }
+    };
+}
+}

@@ -1,0 +1,49 @@
+﻿<div class="admin-sidebar">
+    <ul class="admin-menu">
+        <li><NavLink href="/admin/dashboard" Match="NavLinkMatch.All"><span class="bi bi-house"></span> Dashboard</NavLink></li>
+        <li><NavLink href="/admin/users"><span class="bi bi-people"></span> Users</NavLink></li>
+        <li><NavLink href="/admin/books"><span class="bi bi-book"></span> Books</NavLink></li>
+        <li><NavLink href="/admin/orders"><span class="bi bi-cart"></span> Orders</NavLink></li>
+        <li><NavLink href="/admin/publishers"><span class="bi bi-bar-chart"></span> Publishers</NavLink></li>
+    </ul>
+</div>
+
+<style>
+    .admin-sidebar {
+        width: 250px;
+        position: fixed;
+        top: 60px; /* Below navbar */
+        bottom: 0;
+        left: 0;
+        background-color: #34495e;
+        padding-top: 20px;
+        color: #ecf0f1;
+    }
+
+    .admin-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .admin-menu li {
+            padding: 10px 20px;
+        }
+
+    .nav-link {
+        color: #ecf0f1;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #ffffff;
+            background-color: #2c3e50;
+        }
+
+    .bi {
+        margin-right: 10px;
+    }
+</style>

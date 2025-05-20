@@ -14,10 +14,17 @@ namespace kitabh_chautari
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
-            builder.Services.AddMauiBlazorWebView();
 
+            builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddScoped<ApiHandlerService>();
+            builder.Services.AddScoped(
+                    a => new HttpClient
+                    {
+                        BaseAddress = new Uri("https://localhost:7013")
+                    }
+                );
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
 
